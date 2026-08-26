@@ -13,7 +13,7 @@ export async function buildConnectionStatus() {
   if (!ok) {
     next.push("ifood-mcp-unofficial auth start --email you@email.com");
     next.push("ifood-mcp-unofficial auth complete --code <6-digit> --email you@email.com");
-    next.push("Or paste a JWT: ifood-mcp-unofficial auth --token <jwt from DevTools>");
+    next.push("Or paste a JWT: ifood-mcp-unofficial auth --from-header \"Bearer …\" / auth --token <jwt>");
   }
   if (!config.allowMutations) next.push("Reads only. Checkout stays blocked until IFOOD_ALLOW_MUTATIONS is enabled AND explicit_user_intent.");
   return {
@@ -22,6 +22,7 @@ export async function buildConnectionStatus() {
     version: SERVER_VERSION,
     mutations_enabled: config.allowMutations,
     never_pays_by_default: true,
+    auth_methods: ["otp", "token", "from-header"] as const,
     privacy_mode: config.privacyMode,
     api_base: config.apiBase,
     token: {

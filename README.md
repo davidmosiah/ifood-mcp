@@ -10,6 +10,8 @@
 
 > **Never pays by default.** `ifood_checkout` does nothing unless `IFOOD_ALLOW_MUTATIONS` is enabled **and** `explicit_user_intent` is true.
 
+> **WAF:** `www.ifood.com.br/site-api` is Cloudflare-blocked from Node. Search/home/GraphQL may get Akamai Access Denied from datacenter IPs even when a home-browser JWT works. Those are not shipped as 401-verified routes.
+
 ## Setup in 60 seconds
 
 ```bash

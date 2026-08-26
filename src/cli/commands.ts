@@ -5,6 +5,7 @@ import { peekConfig } from "../services/config.js";
 import { buildConnectionStatus } from "../services/connection-status.js";
 import { TokenStore } from "../services/token-store.js";
 import { IfoodClient } from "../services/ifood-client.js";
+import { normalizeAccessToken } from "../services/auth-token.js";
 
 export async function runCliCommand(args: string[]): Promise<number | undefined> {
   const [command, ...rest] = args;
@@ -56,8 +57,7 @@ async function runAuth(args: string[]): Promise<number> {
   const headerIdx = args.indexOf("--from-header");
   if (headerIdx >= 0) {
     const raw = args[headerIdx + 1] ?? "";
-    const token = raw.replace(/^Bearer\s+/i, "").trim();
-    return await storeToken(token);
+    return await storeToken(raw);
   }
   const idx = args.indexOf("--token");
   const token = idx >= 0 ? args[idx + 1] : process.env.IFOOD_ACCESS_TOKEN;
@@ -123,10 +123,15 @@ async function runAuthComplete(args: string[]): Promise<number> {
 }
 
 async function storeToken(token: string): Promise<number> {
+  const access = normalizeAccessToken(token);
+  if (!access || access.startsWith("--")) {
+    console.error("Empty token after stripping Bearer. Paste the Authorization header or JWT.");
+    return 1;
+  }
   const config = peekConfig();
   const store = new TokenStore(config.tokenPath);
   await store.write({
-    access_token: token,
+    access_token: access,
     source: "user",
     token_type: "Bearer",
     account_id: process.env.IFOOD_ACCOUNT_ID
