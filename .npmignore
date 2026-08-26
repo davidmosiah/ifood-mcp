@@ -6,6 +6,6 @@ coverage
 tsconfig.json
 .gitignore
 *.log
-.rappi-mcp
+.ifood-mcp
 .env
 .env.*
