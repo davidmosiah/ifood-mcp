@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ifood": {
+      "command": "npx",
+      "args": ["-y", "ifood-mcp-unofficial"]
+    }
+  }
+}

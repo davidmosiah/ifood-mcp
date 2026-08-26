@@ -1,0 +1,20 @@
+# ifood-mcp-unofficial
+
+Unofficial local-first MCP for personal iFood (Brazil). Not Partners merchant-api.
+
+Install:
+- npx -y ifood-mcp-unofficial setup
+- npx -y ifood-mcp-unofficial auth start --email you@email.com
+- npx -y ifood-mcp-unofficial auth complete --code <otp> --email you@email.com
+- npx -y ifood-mcp-unofficial doctor
+
+Stdio (never set IFOOD_ALLOW_MUTATIONS in the snippet):
+{ "mcpServers": { "ifood": { "command": "npx", "args": ["-y", "ifood-mcp-unofficial"] } } }
+
+Default: read-only. Never pays.
+Charge only if IFOOD_ALLOW_MUTATIONS is enabled AND explicit_user_intent is true.
+Redacts street, phone, email, last-four.
+
+Hosts: marketplace.ifood.com.br (profile/orders), cw-marketplace.ifood.com.br (cart), wsloja (checkout).
+
+HTTP optional: loopback 127.0.0.1 + Origin allowlist. Tokens in ~/.ifood-mcp/tokens.json (0600).

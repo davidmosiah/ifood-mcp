@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.davidmosiah/ifood-mcp",
+  "description": "Unofficial local-first iFood MCP: restaurants, cart, addresses and orders. Checkout is fail-closed.",
+  "repository": {
+    "url": "https://github.com/davidmosiah/ifood-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "ifood-mcp-unofficial",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "IFOOD_ACCESS_TOKEN",
+          "description": "Personal iFood JWT. Prefer `ifood-mcp-unofficial auth start --email`.",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "IFOOD_ALLOW_MUTATIONS",
+          "description": "Set true to allow cart writes and checkout. Default false (never pays).",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}
