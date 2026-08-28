@@ -5,7 +5,7 @@ export function buildPrivacyAudit() {
   return {
     unofficial: true,
     privacy_mode: config.privacyMode,
-    redacts: ["street", "phone", "email", "last-four", "tokens"],
+    redacts: ["street", "phone", "email", "last-four", "tokens", "lat", "lng", "polyline", "gps"],
     token_path: config.tokenPath,
     mutations_enabled: config.allowMutations,
     never_pays_by_default: true,

@@ -1,3 +1,7 @@
+## 0.1.2 - 2026-08-28
+
+Default privacy redacts GPS (`lat`/`lng`/`latitude`/`longitude`/`polyline`/`gps`) the same way as street/phone. Redaction tests cover those keys.
+
 ## 0.1.1 - 2026-08-26
 
 Ten named OSS improvement rounds (Rappi + iFood):
