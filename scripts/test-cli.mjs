@@ -55,9 +55,27 @@ assert.equal(status.mutations_enabled, false);
 assert.deepEqual(status.auth_methods, ["otp", "token", "from-header"]);
 assert.doesNotMatch(JSON.stringify(status), /IFOOD_ALLOW_MUTATIONS\s*=\s*true/);
 
+const caps = await run(["call", "ifood_capabilities", "--json", "{}"]);
+assert.equal(caps.code, 0, caps.stderr);
+const cap = JSON.parse(caps.stdout);
+assert.equal(cap.unofficial, true);
+assert.equal(cap.never_pays_by_default, true);
+assert.equal(cap.mutations_enabled, false);
+
+const unknown = await run(["call", "ifood_not_a_tool"]);
+assert.equal(unknown.code, 1);
+
 console.log(
   JSON.stringify(
-    { ok: true, suite: "cli", from_header: true, token_0600: true, doctor: true, otp_complete_without_start: true },
+    {
+      ok: true,
+      suite: "cli",
+      from_header: true,
+      token_0600: true,
+      doctor: true,
+      otp_complete_without_start: true,
+      call: true
+    },
     null,
     2
   )

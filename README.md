@@ -40,6 +40,16 @@ Stdio snippet. Do **not** set `IFOOD_ALLOW_MUTATIONS` here:
 }
 ```
 
+## Skill or MCP
+
+Same package, two doors. MCP registers tools on stdio/HTTP. The [skill](skill/SKILL.md) is the workflow (orders/search → stop before checkout) and can drive the **same** tools through the CLI when the client has no MCP:
+
+```bash
+npx -y ifood-mcp-unofficial call ifood_list_orders --json '{}'
+```
+
+Gates are identical. Copy `skill/SKILL.md` into your agent skills dir (`~/.agents/skills/ifood/` or Claude/Grok equivalent).
+
 ## Tools
 
 | Kind | Tools |

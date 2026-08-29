@@ -1,6 +1,6 @@
 {
   "name": "ifood-mcp-unofficial",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Unofficial local-first iFood MCP for personal restaurants, cart, addresses and orders. Never pays unless IFOOD_ALLOW_MUTATIONS and explicit_user_intent are both set.",
   "type": "module",
   "bin": {
@@ -17,7 +17,8 @@
     "CONTRIBUTING.md",
     "server.json",
     "examples",
-    "llms.txt"
+    "llms.txt",
+    "skill"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -7,6 +7,8 @@ Unofficial local-first iFood MCP. Personal food cart for David / Life / Grok Bot
 - `npm ci`
 - `npm test`
 - `npx ifood-mcp-unofficial doctor`
+- `npx ifood-mcp-unofficial call ifood_capabilities --json '{}'`
+- Skill: `skill/SKILL.md` (copy into the agent's skills dir; do not duplicate the API client)
 
 ## Rules
 

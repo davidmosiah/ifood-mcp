@@ -41,6 +41,42 @@ import {
   handleSetDeliveryMethod,
   handleSetPaymentMethod
 } from "../services/handlers.js";
+import type { ToolResponse } from "../types.js";
+
+type CallFn = (args: Record<string, unknown>) => Promise<ToolResponse>;
+const call =
+  <T,>(fn: (input: T) => Promise<ToolResponse>): CallFn =>
+  (args) =>
+    fn(args as T);
+
+/** Same handlers as MCP tools — CLI `call` uses this so skill-only clients hit the identical gates. */
+export const TOOL_CALLS: Record<string, CallFn> = {
+  ifood_connection_status: call(handleConnectionStatus),
+  ifood_capabilities: call(handleCapabilities),
+  ifood_privacy_audit: call(handlePrivacyAudit),
+  ifood_customer_me: call(handleMe),
+  ifood_list_addresses: call(handleListAddresses),
+  ifood_contact_methods: call(handleContactMethods),
+  ifood_list_orders: call(handleListOrders),
+  ifood_get_order: call(handleGetOrder),
+  ifood_loyalty_cards: call(handleLoyalty),
+  ifood_benefits: call(handleBenefits),
+  ifood_list_payment_methods: call(handleListPaymentMethods),
+  ifood_filter_options: call(handleFilterOptions),
+  ifood_reviews: call(handleReviews),
+  ifood_previous_items: call(handlePreviousItems),
+  ifood_get_cart: call(handleGetCart),
+  ifood_merchant_payment_methods: call(handleMerchantPayments),
+  ifood_search: call(handleSearch),
+  ifood_home: call(handleHome),
+  ifood_categories: call(handleCategories),
+  ifood_merchant_info: call(handleMerchantInfo),
+  ifood_create_cart: call(handleCreateCart),
+  ifood_set_delivery_method: call(handleSetDeliveryMethod),
+  ifood_set_payment_method: call(handleSetPaymentMethod),
+  ifood_checkout: call(handleCheckout),
+  ifood_logout: call(handleLogout)
+};
 
 const readOnly = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true } as const;
 const gatedWrite = { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true } as const;
