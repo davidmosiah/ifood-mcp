@@ -64,6 +64,8 @@ assert.equal(cap.mutations_enabled, false);
 assert.ok(Array.isArray(cap.read_tools) && cap.read_tools.includes("ifood_track_order"));
 assert.ok(Array.isArray(cap.gated_cart_writes) && cap.gated_cart_writes.includes("ifood_add_to_cart"));
 assert.ok(Array.isArray(cap.honest_gaps) && cap.honest_gaps.length >= 4);
+assert.equal(cap.read_tools.includes("ifood_merchant_catalog"), false);
+assert.ok(JSON.stringify(cap.honest_gaps).includes("ifood_merchant_catalog"));
 
 const unknown = await run(["call", "ifood_not_a_tool"]);
 assert.equal(unknown.code, 1);

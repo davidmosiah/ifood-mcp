@@ -36,8 +36,7 @@ export function buildCapabilities() {
       "ifood_search",
       "ifood_home",
       "ifood_categories",
-      "ifood_merchant_info",
-      "ifood_merchant_catalog"
+      "ifood_merchant_info"
     ],
     gated_cart_writes: [
       "ifood_create_cart",
@@ -67,6 +66,10 @@ export function buildCapabilities() {
       {
         wanted: "ifood_rate_order write / ifood_favorites / ifood_item_details",
         probe: "POST /v1/review/evaluations, GET favorites, GET catalog/items → HTTP 404 JSON; item GraphQL WAF HTML 403 from this IP"
+      },
+      {
+        wanted: "ifood_merchant_catalog",
+        probe: "GET /v1|/v2 merchants/:id/catalog|menu|items 404 JSON or HTML 403; GraphQL menu extras WAF 403 HTML. Not a subset of merchant_info."
       }
     ]
   };

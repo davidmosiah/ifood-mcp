@@ -41,7 +41,6 @@ import {
   handleLogout,
   handleLoyalty,
   handleMe,
-  handleMerchantCatalog,
   handleMerchantInfo,
   handleMerchantPayments,
   handlePreviousItems,
@@ -88,7 +87,6 @@ export const TOOL_CALLS: Record<string, CallFn> = {
   ifood_home: call(handleHome),
   ifood_categories: call(handleCategories),
   ifood_merchant_info: call(handleMerchantInfo),
-  ifood_merchant_catalog: call(handleMerchantCatalog),
   ifood_create_cart: call(handleCreateCart),
   ifood_add_to_cart: call(handleAddToCart),
   ifood_create_address: call(handleCreateAddress),
@@ -284,14 +282,6 @@ export function registerIfoodTools(server: McpServer): void {
     inputSchema: MerchantIdInputSchema.shape,
     annotations: readOnly
   }, async (args) => handleMerchantInfo(args));
-
-  server.registerTool("ifood_merchant_catalog", {
-    title: "iFood merchant catalog",
-    description:
-      "Same unofficial merchant GraphQL host as merchant_info (menu/item paths 404; GraphQL may WAF from datacenter IPs).",
-    inputSchema: MerchantIdInputSchema.shape,
-    annotations: readOnly
-  }, async (args) => handleMerchantCatalog(args));
 
   server.registerTool("ifood_create_cart", {
     title: "Create iFood cart",

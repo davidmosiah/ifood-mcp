@@ -1,3 +1,7 @@
+## 0.1.5 - 2026-09-01
+
+Removed `ifood_merchant_catalog`. Menu/item REST returned 404 JSON and catalog GraphQL WAF HTML 403; the previous query was a subset of `ifood_merchant_info`, not a catalog. Honest gap recorded in capabilities.
+
 ## 0.1.4 - 2026-09-01
 
 Probe-backed expansion. New read tools: identities, active orders (`status=ONGOING`), track/ETA/receipt/invoice (compose live GET order; dedicated subpaths 404), merchant catalog GraphQL. New writes: `ifood_add_to_cart` (POST `/v1/carts`, dual-gated), `ifood_create_address` (intent-only). Honest gaps recorded in `ifood_capabilities` for 404/WAF paths (reorder/cancel, cart item/coupon/tip, address PUT/DELETE, geocode, favorites, rate write, item details).

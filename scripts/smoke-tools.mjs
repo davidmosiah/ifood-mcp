@@ -30,7 +30,6 @@ const expected = [
   "ifood_list_payment_methods",
   "ifood_logout",
   "ifood_loyalty_cards",
-  "ifood_merchant_catalog",
   "ifood_merchant_info",
   "ifood_merchant_payment_methods",
   "ifood_previous_items",

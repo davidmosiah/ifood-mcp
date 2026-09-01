@@ -292,13 +292,6 @@ export async function handleGetOrderInvoice(
   return readWrap(extra, input, "iFood order invoice", (c) => c.getOrder(input.order_id));
 }
 
-export async function handleMerchantCatalog(
-  input: { merchant_id: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
-  extra: HandlerDeps = {}
-) {
-  return readWrap(extra, input, "iFood merchant catalog", (c) => c.merchantCatalog(input.merchant_id));
-}
-
 export async function handleAddToCart(
   input: {
     merchant_id: string;
