@@ -84,3 +84,23 @@ export const CheckoutInputSchema = z.object({
   explicit_user_intent: Intent,
   response_format: ResponseFormatSchema
 }).strict();
+
+export const AddToCartInputSchema = z.object({
+  merchant_id: z.string().min(1),
+  items: z.array(z.record(z.string(), z.unknown())).min(1),
+  address_id: z.string().optional(),
+  explicit_user_intent: Intent,
+  response_format: ResponseFormatSchema
+}).strict();
+
+export const AddressCreateInputSchema = z.object({
+  latitude: z.number(),
+  longitude: z.number(),
+  street: z.string().min(1).max(200).optional(),
+  number: z.string().max(20).optional(),
+  city: z.string().max(120).optional(),
+  complement: z.string().max(120).optional(),
+  neighborhood: z.string().max(120).optional(),
+  explicit_user_intent: Intent,
+  response_format: ResponseFormatSchema
+}).strict();

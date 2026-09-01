@@ -54,13 +54,13 @@ Gates are identical. Copy `skill/SKILL.md` into your agent skills dir (`~/.agent
 
 | Kind | Tools |
 | --- | --- |
-| Read · me | `ifood_customer_me`, `ifood_list_addresses`, `ifood_contact_methods`, `ifood_list_payment_methods`, `ifood_loyalty_cards`, `ifood_benefits` |
-| Read · orders | `ifood_list_orders`, `ifood_get_order`, `ifood_previous_items`, `ifood_get_cart` |
-| Read · browse | `ifood_search`, `ifood_home`, `ifood_categories`, `ifood_merchant_info`, `ifood_filter_options`, `ifood_reviews`, `ifood_merchant_payment_methods` |
-| Meta | `ifood_connection_status`, `ifood_capabilities`, `ifood_privacy_audit` |
-| Gated cart | `ifood_create_cart`, `ifood_set_delivery_method`, `ifood_set_payment_method` |
+| Read · me | `ifood_customer_me`, `ifood_list_addresses`, `ifood_contact_methods`, `ifood_identities`, `ifood_list_payment_methods`, `ifood_loyalty_cards`, `ifood_benefits` |
+| Read · orders | `ifood_list_orders`, `ifood_list_active_orders`, `ifood_get_order`, `ifood_track_order`, `ifood_get_order_eta`, `ifood_get_order_receipt`, `ifood_get_order_invoice`, `ifood_previous_items`, `ifood_get_cart` |
+| Read · browse | `ifood_search`, `ifood_home`, `ifood_categories`, `ifood_merchant_info`, `ifood_merchant_catalog`, `ifood_filter_options`, `ifood_reviews`, `ifood_merchant_payment_methods` |
+| Meta | `ifood_connection_status`, `ifood_capabilities` (includes `honest_gaps`), `ifood_privacy_audit` |
+| Gated cart | `ifood_create_cart`, `ifood_add_to_cart`, `ifood_set_delivery_method`, `ifood_set_payment_method` |
 | Gated pay | `ifood_checkout` |
-| Intent only | `ifood_logout` |
+| Intent only | `ifood_logout`, `ifood_create_address` |
 
 ## HTTP (optional, loopback)
 

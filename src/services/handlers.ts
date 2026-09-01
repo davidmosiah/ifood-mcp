@@ -6,6 +6,7 @@ import { applyPrivacy } from "./privacy.js";
 import { bulletList, makeError, makeResponse } from "./format.js";
 import {
   MutationGateError,
+  assertAddressWriteAllowed,
   assertCartWriteAllowed,
   assertCheckoutAllowed,
   assertLogoutAllowed
@@ -244,6 +245,113 @@ export async function handleCheckout(
     assertCheckoutAllowed({ allowMutations, explicitUserIntent: input.explicit_user_intent });
     const raw = await client.checkout(input.cart_id, input.checkout_payload);
     return wrap({ ok: true, order: raw }, input.response_format ?? "markdown", "iFood checkout", { ok: true });
+  } catch (error) {
+    return gateError(error);
+  }
+}
+
+export const handleIdentities = (
+  i: { privacy_mode?: PrivacyMode; response_format?: ResponseFormat } = {},
+  e: HandlerDeps = {}
+) => readWrap(e, i, "iFood identities", (c) => c.identities());
+
+export async function handleListActiveOrders(
+  input: { page?: number; size?: number; privacy_mode?: PrivacyMode; response_format?: ResponseFormat } = {},
+  extra: HandlerDeps = {}
+) {
+  return readWrap(extra, input, "iFood active orders", (c) =>
+    c.listActiveOrders(input.page ?? 0, input.size ?? 10)
+  );
+}
+
+export async function handleTrackOrder(
+  input: { order_id: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  return readWrap(extra, input, "iFood track order", (c) => c.getOrder(input.order_id));
+}
+
+export async function handleGetOrderEta(
+  input: { order_id: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  return readWrap(extra, input, "iFood order ETA", (c) => c.getOrder(input.order_id));
+}
+
+export async function handleGetOrderReceipt(
+  input: { order_id: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  return readWrap(extra, input, "iFood order receipt", (c) => c.getOrder(input.order_id));
+}
+
+export async function handleGetOrderInvoice(
+  input: { order_id: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  return readWrap(extra, input, "iFood order invoice", (c) => c.getOrder(input.order_id));
+}
+
+export async function handleMerchantCatalog(
+  input: { merchant_id: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  return readWrap(extra, input, "iFood merchant catalog", (c) => c.merchantCatalog(input.merchant_id));
+}
+
+export async function handleAddToCart(
+  input: {
+    merchant_id: string;
+    items: Array<Record<string, unknown>>;
+    address_id?: string;
+    explicit_user_intent?: boolean;
+    response_format?: ResponseFormat;
+  },
+  extra: HandlerDeps = {}
+) {
+  const { allowMutations, client } = deps(extra);
+  try {
+    assertCartWriteAllowed({ allowMutations, explicitUserIntent: input.explicit_user_intent });
+    const raw = await client.createCart({
+      merchant: { id: input.merchant_id },
+      items: input.items,
+      address: input.address_id ? { id: input.address_id } : undefined
+    });
+    return wrap({ ok: true, cart: raw }, input.response_format ?? "markdown", "iFood add to cart", { ok: true });
+  } catch (error) {
+    return gateError(error);
+  }
+}
+
+export async function handleCreateAddress(
+  input: {
+    latitude: number;
+    longitude: number;
+    street?: string;
+    number?: string;
+    city?: string;
+    complement?: string;
+    neighborhood?: string;
+    explicit_user_intent?: boolean;
+    response_format?: ResponseFormat;
+  },
+  extra: HandlerDeps = {}
+) {
+  const { client } = deps(extra);
+  try {
+    assertAddressWriteAllowed(input.explicit_user_intent);
+    const raw = await client.createAddress({
+      latitude: input.latitude,
+      longitude: input.longitude,
+      street: input.street,
+      number: input.number,
+      city: input.city,
+      complement: input.complement,
+      neighborhood: input.neighborhood
+    });
+    return wrap({ ok: true, address: raw }, input.response_format ?? "markdown", "iFood address created", {
+      ok: true
+    });
   } catch (error) {
     return gateError(error);
   }

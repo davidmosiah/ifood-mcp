@@ -5,7 +5,13 @@ import { join } from "node:path";
 import { TokenStore } from "../dist/services/token-store.js";
 import { IfoodClient } from "../dist/services/ifood-client.js";
 import { peekConfig } from "../dist/services/config.js";
-import { handleCheckout, handleCreateCart, handleLogout } from "../dist/services/handlers.js";
+import {
+  handleAddToCart,
+  handleCheckout,
+  handleCreateAddress,
+  handleCreateCart,
+  handleLogout
+} from "../dist/services/handlers.js";
 
 let fetches = 0;
 const fetchImpl = async () => {
@@ -49,6 +55,30 @@ const deniedCart = await handleCreateCart(
   { client, tokens, allowMutations: false, fetchImpl }
 );
 assert.equal(deniedCart.isError, true);
+assert.equal(fetches, 0);
+
+fetches = 0;
+const deniedAdd = await handleAddToCart(
+  { merchant_id: "m1", items: [{ id: "i1" }], explicit_user_intent: true, response_format: "json" },
+  { client, tokens, allowMutations: false, fetchImpl }
+);
+assert.equal(deniedAdd.isError, true);
+assert.equal(fetches, 0);
+
+fetches = 0;
+const deniedAddIntent = await handleAddToCart(
+  { merchant_id: "m1", items: [{ id: "i1" }], explicit_user_intent: false, response_format: "json" },
+  { client, tokens, allowMutations: true, fetchImpl }
+);
+assert.equal(deniedAddIntent.isError, true);
+assert.equal(fetches, 0);
+
+fetches = 0;
+const deniedAddress = await handleCreateAddress(
+  { latitude: -3.73, longitude: -38.52, street: "Rua Teste", response_format: "json" },
+  { client, tokens, fetchImpl }
+);
+assert.equal(deniedAddress.isError, true);
 assert.equal(fetches, 0);
 
 const deniedLogout = await handleLogout({ response_format: "json" }, { tokens });

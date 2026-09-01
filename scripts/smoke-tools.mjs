@@ -6,23 +6,31 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 const expected = [
+  "ifood_add_to_cart",
   "ifood_benefits",
   "ifood_capabilities",
   "ifood_categories",
   "ifood_checkout",
   "ifood_connection_status",
   "ifood_contact_methods",
+  "ifood_create_address",
   "ifood_create_cart",
   "ifood_customer_me",
   "ifood_filter_options",
   "ifood_get_cart",
   "ifood_get_order",
+  "ifood_get_order_eta",
+  "ifood_get_order_invoice",
+  "ifood_get_order_receipt",
   "ifood_home",
+  "ifood_identities",
+  "ifood_list_active_orders",
   "ifood_list_addresses",
   "ifood_list_orders",
   "ifood_list_payment_methods",
   "ifood_logout",
   "ifood_loyalty_cards",
+  "ifood_merchant_catalog",
   "ifood_merchant_info",
   "ifood_merchant_payment_methods",
   "ifood_previous_items",
@@ -30,7 +38,8 @@ const expected = [
   "ifood_reviews",
   "ifood_search",
   "ifood_set_delivery_method",
-  "ifood_set_payment_method"
+  "ifood_set_payment_method",
+  "ifood_track_order"
 ];
 
 const homeDir = mkdtempSync(join(tmpdir(), "ifood-mcp-smoke-"));

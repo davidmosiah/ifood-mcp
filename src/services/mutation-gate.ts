@@ -46,3 +46,7 @@ export function assertCheckoutAllowed(input: GateInput): void {
 export function assertLogoutAllowed(explicitUserIntent: boolean | undefined): void {
   assertExplicitIntent(explicitUserIntent, "clear the local iFood token");
 }
+
+export function assertAddressWriteAllowed(explicitUserIntent: boolean | undefined): void {
+  assertExplicitIntent(explicitUserIntent, "change iFood delivery addresses");
+}

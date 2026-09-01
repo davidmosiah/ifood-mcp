@@ -1,3 +1,7 @@
+## 0.1.4 - 2026-09-01
+
+Probe-backed expansion. New read tools: identities, active orders (`status=ONGOING`), track/ETA/receipt/invoice (compose live GET order; dedicated subpaths 404), merchant catalog GraphQL. New writes: `ifood_add_to_cart` (POST `/v1/carts`, dual-gated), `ifood_create_address` (intent-only). Honest gaps recorded in `ifood_capabilities` for 404/WAF paths (reorder/cancel, cart item/coupon/tip, address PUT/DELETE, geocode, favorites, rate write, item details).
+
 ## 0.1.3 - 2026-08-28
 
 Skill layer ships in-package (`skill/SKILL.md`). Agents can use MCP tools **or** `call <tool> --json` on the same binary; mutation gates are identical. Default docs still do not contain a copyable mutations assignment.

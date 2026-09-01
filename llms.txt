@@ -16,7 +16,10 @@ npx -y ifood-mcp-unofficial call <tool> --json '{...}'
 
 Default: read-only. Never pays.
 Charge only if IFOOD_ALLOW_MUTATIONS is enabled AND explicit_user_intent is true.
-Redacts street, phone, email, last-four.
+Redacts street, phone, email, last-four, GPS.
+
+Tools: identities, active orders, track/eta/receipt/invoice (from GET order), merchant catalog, add_to_cart (gated), create_address (intent).
+Gaps (probed 404/WAF, see ifood_capabilities.honest_gaps): reorder, cancel, cart item/coupon/tip, address PUT/DELETE, geocode, favorites, rate write, item details.
 
 Hosts: marketplace.ifood.com.br (profile/orders), cw-marketplace.ifood.com.br (cart), wsloja (checkout).
 

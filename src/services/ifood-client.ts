@@ -3,6 +3,7 @@ import { dirname } from "node:path";
 import { promises as fs } from "node:fs";
 import {
   APP_VERSION,
+  MERCHANT_CATALOG_QUERY,
   MERCHANT_INFO_QUERY,
   PATHS,
   REQUEST_TIMEOUT_MS,
@@ -168,6 +169,31 @@ export class IfoodClient {
 
   async getCart(cartId: string): Promise<unknown> {
     return this.requestJson("GET", `${PATHS.carts}/${encodeURIComponent(cartId)}`, { auth: true, host: "cart" });
+  }
+
+  async identities(): Promise<unknown> {
+    return this.requestJson("GET", PATHS.identities, { auth: true });
+  }
+
+  async listActiveOrders(page = 0, size = 10): Promise<unknown> {
+    return this.requestJson("GET", PATHS.orders, {
+      auth: true,
+      query: { page, size, status: "ONGOING" }
+    });
+  }
+
+  async createAddress(body: unknown): Promise<unknown> {
+    return this.requestJson("POST", PATHS.addresses, { auth: true, body });
+  }
+
+  async merchantCatalog(merchantId: string): Promise<unknown> {
+    return this.requestJson("POST", PATHS.merchantGraphql, {
+      auth: "optional",
+      body: {
+        query: MERCHANT_CATALOG_QUERY,
+        variables: { merchantId }
+      }
+    });
   }
 
   async createCart(body: unknown): Promise<unknown> {

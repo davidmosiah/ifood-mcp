@@ -49,7 +49,8 @@ Fallback: DevTools `Authorization` from `marketplace.ifood.com.br`, then `auth -
 
 1. `ifood_connection_status` (or `doctor --json`). Expect `unofficial` and `never_pays_by_default`.
 2. Profile / orders / search as asked. Street, phone, GPS stay redacted.
-3. **Stop before checkout.** Do not call `ifood_checkout` unless the user clearly asked to place **this** order. If the tool returns `USER_ACTION_REQUIRED`, report that and stop. Do not invent env flags.
+3. “O pedido saiu?” → `ifood_list_active_orders` then `ifood_track_order` / `ifood_get_order_eta`. Dedicated tracking URLs 404; these read the live order.
+4. **Stop before checkout.** Do not call `ifood_checkout` unless the user clearly asked to place **this** order. If the tool returns `USER_ACTION_REQUIRED`, report that and stop. Do not invent env flags.
 
 ## Never
 

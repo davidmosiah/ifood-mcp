@@ -1,5 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
+  AddToCartInputSchema,
+  AddressCreateInputSchema,
   CartIdInputSchema,
   CartPaymentInputSchema,
   CheckoutInputSchema,
@@ -15,23 +17,31 @@ import {
   ResponseOnlyInputSchema
 } from "../schemas/common.js";
 import {
+  handleAddToCart,
   handleBenefits,
   handleCapabilities,
   handleCategories,
   handleCheckout,
   handleConnectionStatus,
   handleContactMethods,
+  handleCreateAddress,
   handleCreateCart,
   handleFilterOptions,
   handleGetCart,
   handleGetOrder,
+  handleGetOrderEta,
+  handleGetOrderInvoice,
+  handleGetOrderReceipt,
   handleHome,
+  handleIdentities,
+  handleListActiveOrders,
   handleListAddresses,
   handleListOrders,
   handleListPaymentMethods,
   handleLogout,
   handleLoyalty,
   handleMe,
+  handleMerchantCatalog,
   handleMerchantInfo,
   handleMerchantPayments,
   handlePreviousItems,
@@ -39,7 +49,8 @@ import {
   handleReviews,
   handleSearch,
   handleSetDeliveryMethod,
-  handleSetPaymentMethod
+  handleSetPaymentMethod,
+  handleTrackOrder
 } from "../services/handlers.js";
 import type { ToolResponse } from "../types.js";
 
@@ -57,8 +68,14 @@ export const TOOL_CALLS: Record<string, CallFn> = {
   ifood_customer_me: call(handleMe),
   ifood_list_addresses: call(handleListAddresses),
   ifood_contact_methods: call(handleContactMethods),
+  ifood_identities: call(handleIdentities),
   ifood_list_orders: call(handleListOrders),
+  ifood_list_active_orders: call(handleListActiveOrders),
   ifood_get_order: call(handleGetOrder),
+  ifood_track_order: call(handleTrackOrder),
+  ifood_get_order_eta: call(handleGetOrderEta),
+  ifood_get_order_receipt: call(handleGetOrderReceipt),
+  ifood_get_order_invoice: call(handleGetOrderInvoice),
   ifood_loyalty_cards: call(handleLoyalty),
   ifood_benefits: call(handleBenefits),
   ifood_list_payment_methods: call(handleListPaymentMethods),
@@ -71,7 +88,10 @@ export const TOOL_CALLS: Record<string, CallFn> = {
   ifood_home: call(handleHome),
   ifood_categories: call(handleCategories),
   ifood_merchant_info: call(handleMerchantInfo),
+  ifood_merchant_catalog: call(handleMerchantCatalog),
   ifood_create_cart: call(handleCreateCart),
+  ifood_add_to_cart: call(handleAddToCart),
+  ifood_create_address: call(handleCreateAddress),
   ifood_set_delivery_method: call(handleSetDeliveryMethod),
   ifood_set_payment_method: call(handleSetPaymentMethod),
   ifood_checkout: call(handleCheckout),
@@ -124,6 +144,13 @@ export function registerIfoodTools(server: McpServer): void {
     annotations: readOnly
   }, async (args) => handleContactMethods(args));
 
+  server.registerTool("ifood_identities", {
+    title: "iFood external identities",
+    description: "Allowlisted GET /v1/customers/me/external-identities. Identity redacted. Read-only.",
+    inputSchema: ReadInputSchema.shape,
+    annotations: readOnly
+  }, async (args) => handleIdentities(args));
+
   server.registerTool("ifood_list_orders", {
     title: "List iFood orders",
     description: "Past orders (v4). Read-only.",
@@ -137,6 +164,42 @@ export function registerIfoodTools(server: McpServer): void {
     inputSchema: OrderIdInputSchema.shape,
     annotations: readOnly
   }, async (args) => handleGetOrder(args));
+
+  server.registerTool("ifood_list_active_orders", {
+    title: "List active iFood orders",
+    description: "GET /v4/customers/me/orders?status=ONGOING (401 JSON without jwt). Read-only.",
+    inputSchema: OrdersListInputSchema.shape,
+    annotations: readOnly
+  }, async (args) => handleListActiveOrders(args));
+
+  server.registerTool("ifood_track_order", {
+    title: "Track iFood order",
+    description:
+      "Dedicated /tracking URLs 404. Reads the live GET /v3/customers/me/orders/:id payload instead. Read-only.",
+    inputSchema: OrderIdInputSchema.shape,
+    annotations: readOnly
+  }, async (args) => handleTrackOrder(args));
+
+  server.registerTool("ifood_get_order_eta", {
+    title: "iFood order ETA",
+    description: "Dedicated /eta URL 404. Reads the live order payload. Read-only.",
+    inputSchema: OrderIdInputSchema.shape,
+    annotations: readOnly
+  }, async (args) => handleGetOrderEta(args));
+
+  server.registerTool("ifood_get_order_receipt", {
+    title: "iFood order receipt",
+    description: "Dedicated /receipt URL 404. Reads the live order payload. Read-only.",
+    inputSchema: OrderIdInputSchema.shape,
+    annotations: readOnly
+  }, async (args) => handleGetOrderReceipt(args));
+
+  server.registerTool("ifood_get_order_invoice", {
+    title: "iFood order invoice",
+    description: "Dedicated /invoice /nfe URLs 404. Reads the live order payload. Read-only.",
+    inputSchema: OrderIdInputSchema.shape,
+    annotations: readOnly
+  }, async (args) => handleGetOrderInvoice(args));
 
   server.registerTool("ifood_loyalty_cards", {
     title: "iFood loyalty",
@@ -217,10 +280,18 @@ export function registerIfoodTools(server: McpServer): void {
 
   server.registerTool("ifood_merchant_info", {
     title: "iFood merchant info",
-    description: "Fees, hours, rating via unofficial GraphQL. Read-only.",
+    description: "Fees, hours, rating via unofficial GraphQL. Read-only. May WAF from datacenter IPs.",
     inputSchema: MerchantIdInputSchema.shape,
     annotations: readOnly
   }, async (args) => handleMerchantInfo(args));
+
+  server.registerTool("ifood_merchant_catalog", {
+    title: "iFood merchant catalog",
+    description:
+      "Same unofficial merchant GraphQL host as merchant_info (menu/item paths 404; GraphQL may WAF from datacenter IPs).",
+    inputSchema: MerchantIdInputSchema.shape,
+    annotations: readOnly
+  }, async (args) => handleMerchantCatalog(args));
 
   server.registerTool("ifood_create_cart", {
     title: "Create iFood cart",
@@ -228,6 +299,21 @@ export function registerIfoodTools(server: McpServer): void {
     inputSchema: CreateCartInputSchema.shape,
     annotations: gatedWrite
   }, async (args) => handleCreateCart(args));
+
+  server.registerTool("ifood_add_to_cart", {
+    title: "Add items to iFood cart",
+    description:
+      "POST /v1/carts on cw-marketplace (401 JSON no-jwt). Item subpaths 404. Dual-gated. Does not checkout.",
+    inputSchema: AddToCartInputSchema.shape,
+    annotations: gatedWrite
+  }, async (args) => handleAddToCart(args));
+
+  server.registerTool("ifood_create_address", {
+    title: "Create iFood address",
+    description: "POST /v1/customers/me/addresses (401 JSON no-jwt). Requires explicit_user_intent. PUT/DELETE :id 404.",
+    inputSchema: AddressCreateInputSchema.shape,
+    annotations: gatedWrite
+  }, async (args) => handleCreateAddress(args));
 
   server.registerTool("ifood_set_delivery_method", {
     title: "Set iFood delivery method",
