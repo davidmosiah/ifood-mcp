@@ -1,3 +1,4 @@
+import { assertToolInputBudget } from "../services/tool-input-budget.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
   AddToCartInputSchema,
@@ -55,45 +56,49 @@ import type { ToolResponse } from "../types.js";
 
 type CallFn = (args: Record<string, unknown>) => Promise<ToolResponse>;
 const call =
-  <T,>(fn: (input: T) => Promise<ToolResponse>): CallFn =>
-  (args) =>
-    fn(args as T);
+  <T,>(schema: { safeParse(input: unknown): { success: true; data: T } | { success: false } }, fn: (input: T) => Promise<ToolResponse>): CallFn =>
+  async (args) => {
+    assertToolInputBudget(args);
+    const parsed = schema.safeParse(args);
+    if (!parsed.success) throw new Error("INVALID_INPUT: arguments do not match the tool schema");
+    return fn(parsed.data);
+  };
 
 /** Same handlers as MCP tools — CLI `call` uses this so skill-only clients hit the identical gates. */
 export const TOOL_CALLS: Record<string, CallFn> = {
-  ifood_connection_status: call(handleConnectionStatus),
-  ifood_capabilities: call(handleCapabilities),
-  ifood_privacy_audit: call(handlePrivacyAudit),
-  ifood_customer_me: call(handleMe),
-  ifood_list_addresses: call(handleListAddresses),
-  ifood_contact_methods: call(handleContactMethods),
-  ifood_identities: call(handleIdentities),
-  ifood_list_orders: call(handleListOrders),
-  ifood_list_active_orders: call(handleListActiveOrders),
-  ifood_get_order: call(handleGetOrder),
-  ifood_track_order: call(handleTrackOrder),
-  ifood_get_order_eta: call(handleGetOrderEta),
-  ifood_get_order_receipt: call(handleGetOrderReceipt),
-  ifood_get_order_invoice: call(handleGetOrderInvoice),
-  ifood_loyalty_cards: call(handleLoyalty),
-  ifood_benefits: call(handleBenefits),
-  ifood_list_payment_methods: call(handleListPaymentMethods),
-  ifood_filter_options: call(handleFilterOptions),
-  ifood_reviews: call(handleReviews),
-  ifood_previous_items: call(handlePreviousItems),
-  ifood_get_cart: call(handleGetCart),
-  ifood_merchant_payment_methods: call(handleMerchantPayments),
-  ifood_search: call(handleSearch),
-  ifood_home: call(handleHome),
-  ifood_categories: call(handleCategories),
-  ifood_merchant_info: call(handleMerchantInfo),
-  ifood_create_cart: call(handleCreateCart),
-  ifood_add_to_cart: call(handleAddToCart),
-  ifood_create_address: call(handleCreateAddress),
-  ifood_set_delivery_method: call(handleSetDeliveryMethod),
-  ifood_set_payment_method: call(handleSetPaymentMethod),
-  ifood_checkout: call(handleCheckout),
-  ifood_logout: call(handleLogout)
+  ifood_connection_status: call(ResponseOnlyInputSchema, handleConnectionStatus),
+  ifood_capabilities: call(ResponseOnlyInputSchema, handleCapabilities),
+  ifood_privacy_audit: call(ResponseOnlyInputSchema, handlePrivacyAudit),
+  ifood_customer_me: call(ReadInputSchema, handleMe),
+  ifood_list_addresses: call(ReadInputSchema, handleListAddresses),
+  ifood_contact_methods: call(ReadInputSchema, handleContactMethods),
+  ifood_identities: call(ReadInputSchema, handleIdentities),
+  ifood_list_orders: call(OrdersListInputSchema, handleListOrders),
+  ifood_list_active_orders: call(OrdersListInputSchema, handleListActiveOrders),
+  ifood_get_order: call(OrderIdInputSchema, handleGetOrder),
+  ifood_track_order: call(OrderIdInputSchema, handleTrackOrder),
+  ifood_get_order_eta: call(OrderIdInputSchema, handleGetOrderEta),
+  ifood_get_order_receipt: call(OrderIdInputSchema, handleGetOrderReceipt),
+  ifood_get_order_invoice: call(OrderIdInputSchema, handleGetOrderInvoice),
+  ifood_loyalty_cards: call(ReadInputSchema, handleLoyalty),
+  ifood_benefits: call(ReadInputSchema, handleBenefits),
+  ifood_list_payment_methods: call(ReadInputSchema, handleListPaymentMethods),
+  ifood_filter_options: call(ReadInputSchema, handleFilterOptions),
+  ifood_reviews: call(MerchantIdInputSchema, handleReviews),
+  ifood_previous_items: call(MerchantIdInputSchema, handlePreviousItems),
+  ifood_get_cart: call(CartIdInputSchema, handleGetCart),
+  ifood_merchant_payment_methods: call(MerchantIdInputSchema, handleMerchantPayments),
+  ifood_search: call(GeoSearchInputSchema, handleSearch),
+  ifood_home: call(GeoInputSchema, handleHome),
+  ifood_categories: call(GeoInputSchema, handleCategories),
+  ifood_merchant_info: call(MerchantIdInputSchema, handleMerchantInfo),
+  ifood_create_cart: call(CreateCartInputSchema, handleCreateCart),
+  ifood_add_to_cart: call(AddToCartInputSchema, handleAddToCart),
+  ifood_create_address: call(AddressCreateInputSchema, handleCreateAddress),
+  ifood_set_delivery_method: call(DeliveryMethodInputSchema, handleSetDeliveryMethod),
+  ifood_set_payment_method: call(CartPaymentInputSchema, handleSetPaymentMethod),
+  ifood_checkout: call(CheckoutInputSchema, handleCheckout),
+  ifood_logout: call(LogoutInputSchema, handleLogout)
 };
 
 const readOnly = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true } as const;

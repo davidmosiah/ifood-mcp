@@ -1,4 +1,13 @@
+## Unreleased
+
+- Isolate concurrent token writes with exclusive random temporary files, restrictive permissions, and failure cleanup.
+- Reject insecure or ambiguous consumer bases and redirects; preserve the documented provider endpoints.
+- Bound optional HTTP MCP JSON bodies to 1 MiB before allocating an MCP server.
+- Refresh vulnerable dependencies within existing compatible ranges and add offline regression fixtures.
+- Apply CLI schema and size budgets before handlers, and cancel oversized or timed-out upstream response streams.
+
 ## 0.1.5 - 2026-09-01
+
 
 Removed `ifood_merchant_catalog`. Menu/item REST returned 404 JSON and catalog GraphQL WAF HTML 403; the previous query was a subset of `ifood_merchant_info`, not a catalog. Honest gap recorded in capabilities.
 

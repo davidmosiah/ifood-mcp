@@ -18,7 +18,9 @@ const HOST_SUFFIXES = ["marketplace.ifood.com.br", "cw-marketplace.ifood.com.br"
 
 export function isAllowedIfoodHost(url: string): boolean {
   try {
-    const host = new URL(url).hostname;
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || parsed.port || parsed.username || parsed.password || parsed.hash) return false;
+    const host = parsed.hostname;
     return HOST_SUFFIXES.includes(host);
   } catch {
     return false;
