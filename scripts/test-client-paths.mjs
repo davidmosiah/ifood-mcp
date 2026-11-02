@@ -20,6 +20,7 @@ delete process.env.IFOOD_ALLOW_MUTATIONS;
 
 const captured = [];
 const fetchImpl = async (url, init = {}) => {
+  assert.equal(init.redirect, "error", "consumer redirects must fail closed");
   captured.push({ url: String(url), method: String(init.method || "GET").toUpperCase() });
   return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { "content-type": "application/json" } });
 };
@@ -52,3 +53,13 @@ assert.ok(hit(config.checkoutBase, `${PATHS.carts}/cart-1/checkout`, "POST"), "c
 assert.equal(Boolean(hit(config.apiBase, PATHS.carts, "POST")), false, "cart create must not hit marketplace host");
 
 console.log(JSON.stringify({ ok: true, suite: "client-paths", captured: captured.map((r) => `${r.method} ${r.url}`) }, null, 2));
+
+const oversizedClient = new IfoodClient(config, { read: async () => ({ access_token: "fixture-only", source: "user" }) }, async () => new Response("x".repeat(4 * 1024 * 1024 + 1)));
+await assert.rejects(() => oversizedClient.me(), /allowed size/);
+
+const failingClient = new IfoodClient(config, { read: async () => ({ access_token: "fixture-only", source: "user" }) }, async () => { throw new Error("synthetic-private-network-secret"); });
+await assert.rejects(() => failingClient.me(), error => {
+  assert.match(error.message, /request failed/);
+  assert.doesNotMatch(error.message, /synthetic-private/);
+  return true;
+});

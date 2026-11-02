@@ -1,8 +1,10 @@
+import { readResponseText, ResponseBodyError } from "./response-body.js";
 import { randomUUID } from "node:crypto";
 import { dirname } from "node:path";
 import { promises as fs } from "node:fs";
 import {
   APP_VERSION,
+  DEFAULT_CHECKOUT_BASE,
   MERCHANT_INFO_QUERY,
   PATHS,
   REQUEST_TIMEOUT_MS,
@@ -316,9 +318,10 @@ export class IfoodClient {
         method,
         headers,
         body: options.body === undefined || method === "GET" || method === "DELETE" ? undefined : JSON.stringify(options.body),
+        redirect: "error",
         signal: controller.signal
       });
-      const text = await response.text();
+      const text = await readResponseText(response, controller.signal);
       let parsed: unknown = text;
       try {
         parsed = text ? JSON.parse(text) : null;
@@ -335,7 +338,7 @@ export class IfoodClient {
       return parsed;
     } catch (error) {
       if (error instanceof IfoodClientError) throw error;
-      throw new IfoodClientError(`iFood request failed: ${(error as Error).message}`, undefined, "IFOOD_UPSTREAM_UNAVAILABLE");
+      throw new IfoodClientError(error instanceof ResponseBodyError ? error.message : "iFood request failed", undefined, "IFOOD_UPSTREAM_UNAVAILABLE");
     } finally {
       clearTimeout(timer);
     }
@@ -349,12 +352,16 @@ export function consumerRequestUrl(
 ): string {
   try {
     assertAllowedConsumerPath(path);
+    const base = new URL(apiBase);
+    if ((base.pathname !== "/" && apiBase.replace(/\/$/, "") !== DEFAULT_CHECKOUT_BASE) || base.search || base.hash) {
+      throw new Error("PATH_NOT_ALLOWED: API base must be a bare HTTPS origin");
+    }
   } catch (error) {
     throw new IfoodClientError((error as Error).message, undefined, "PATH_NOT_ALLOWED");
   }
   let url = apiBase.replace(/\/$/, "") + path;
   if (!isAllowedIfoodHost(url)) {
-    throw new IfoodClientError(`HOST_NOT_ALLOWED: ${apiBase}`, undefined, "PATH_NOT_ALLOWED");
+    throw new IfoodClientError("HOST_NOT_ALLOWED: consumer base must use an allowed HTTPS origin", undefined, "PATH_NOT_ALLOWED");
   }
   if (query) {
     const qs = new URLSearchParams();
